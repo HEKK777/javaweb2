@@ -1,133 +1,148 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="java.util.*" %>
+<%@ page import = "com.shopcart.ProductList" %>
+<%@ page import = "com.shopcart.Product" %>
 <!DOCTYPE html>
 <html>
 <head>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css">
     <title>商品列表</title>
     <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            color: #000000;
+        }
+
         .product-list {
-            list-style-type: none;
-            padding: 0;
-        }
-        .product-item {
             display: flex;
-            align-items: center;
-            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+        }
+
+        .product-item {
+            width: 30%;
+            margin: 1%;
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
             padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+            text-align: center;
         }
-        .product-image {
-            flex: 0 0 auto;
-            width: 100px;
-            height: 100px;
-            margin-right: 15px;
-            object-fit: cover;
+
+        .product-item img {
+            width: 100%;
+            max-width: 200px;
+            height: auto;
         }
-        .product-details {
-            flex: 1;
-        }
+
         .product-name {
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        .price {
-            font-weight: bold;
-            color: #f00; /* 红色价格 */
-        }
-        .add-to-cart {
             margin-top: 10px;
+            font-weight: bold;
+            color: #333333;
+        }
+
+        .product-price {
+            float: left;
+            color: #FF0000;
+        }
+
+        .add-to-cart {
+            float: right;
+            margin-right: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .add-to-cart:hover {
+                background-color: #45a049;
+            }
+
+        .cart-link {
+            position: fixed;
+            right: 20px;
+            top: 20px;
+            z-index: 100;
+            font-size: 16px;
+            color: white;
+            border: none;
+            background-color: #4CAF50;
+            padding: 5px 10px;
+            border-radius: 4px;
+            text-decoration: none;
+        }
+
+        .cart-link:hover {
+            background-color: #45a049;
         }
     </style>
 
     <script>
     $(document).ready(function() {
         $('.add-to-cart input[type="submit"]').click(function(e) {
-            e.preventDefault(); // 阻止表单的默认提交行为
-            var form = $(this).closest('form'); // 找到最近的父级表单元素
+            e.preventDefault();
+            var form = $(this).closest('form');
+
             $.ajax({
                 type: 'POST',
-                url: form.attr('action'), // 使用表单的action属性作为URL
-                data: form.serialize(), // 序列化表单数据
+                url: form.attr('action'),
+                data: form.serialize(),
                 success: function(response) {
-                    // 请求成功后执行的函数
-                    alert('商品已成功添加到购物车！'); // 弹窗提示添加成功
+                    showAlertAndClose('商品已成功添加到购物车！', 1000); // 弹窗提示添加成功，并设置1秒后关闭
                 },
                 error: function(xhr, status, error) {
-                    // 请求失败时执行的函数
                     alert('添加购物车失败：' + error);
                 }
             });
         });
     });
+
+    function showAlertAndClose(message, duration) {
+        var alertDiv = $('<div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 9999; padding: 20px; background-color: #4CAF50; color: white; border: 1px solid #f5c6cb; border-radius: 5px;">'+ message +'</div>');
+        alertDiv.appendTo('body').fadeIn('fast');
+        setTimeout(function() {
+            alertDiv.fadeOut('fast', function(){
+                $(this).remove();
+            });
+        }, duration);
+    }
     </script>
 
 </head>
-
 <body>
     <h1>商品列表</h1>
-    <ul class="product-list">
-        <li class="product-item">
-            <img class="product-image" src="PIC/G2.jpg" alt="商品1图片">
-            <div class="product-details">
-                <div class="product-name">商品1</div>
-                <div class="price">￥100</div>
-                <form action="add-to-cart" method="post" class="add-to-cart">
-                    <input type="hidden" name="productName" value="商品1">
-                    <input type="hidden" name="price" value="100">
-                    <input type="submit" value="添加到购物车">
-                </form>
+    <%
+        ProductList p = new ProductList();
+        Map<String , Product> productlist = new HashMap<String,Product>();
+        productlist = p.getProductList();
+    %>
+    <div class="product-list">
+        <% for (Product product: productlist.values()) { %>
+            <div class="product-item">
+                <img src="<%= product.getImg_url() %>" alt="商品图片">
+                <div class="product-name"><%= product.getName() %></div>
+                <div style="clear: both;">
+                    <form action="add-to-cart" method="post" class="add-to-cart">
+                        <input type="hidden" name="productName" value="<%= product.getName() %>">
+                        <input type="hidden" name="price" value="<%= product.getPrice() %>">
+                        <input class="add-to-cart" type="submit" value="添加到购物车">
+                    </form>
+                    <div class="product-price">￥<%= product.getPrice() %></div>
+                </div>
             </div>
-        </li>
-        <li class="product-item">
-            <img class="product-image" src="path/to/product2_image.jpg" alt="商品2图片">
-            <div class="product-details">
-                <div class="product-name">商品2</div>
-                <div class="price">￥200</div>
-                <form action="add-to-cart" method="post" class="add-to-cart">
-                    <input type="hidden" name="productName" value="商品2">
-                    <input type="hidden" name="price" value="200">
-                    <input type="submit" value="添加到购物车">
-                </form>
-            </div>
-        </li>
-        <li class="product-item">
-            <img class="product-image" src="path/to/product2_image.jpg" alt="商品3图片">
-            <div class="product-details">
-                <div class="product-name">商品3</div>
-                <div class="price">￥300</div>
-                <form action="add-to-cart" method="post" class="add-to-cart">
-                    <input type="hidden" name="productName" value="商品3">
-                    <input type="hidden" name="price" value="300">
-                    <input type="submit" value="添加到购物车">
-                </form>
-            </div>
-        </li>
-        <li class="product-item">
-            <img class="product-image" src="path/to/product2_image.jpg" alt="商品4图片">
-            <div class="product-details">
-                <div class="product-name">商品4</div>
-                <div class="price">￥450</div>
-                <form action="add-to-cart" method="post" class="add-to-cart">
-                    <input type="hidden" name="productName" value="商品4">
-                    <input type="hidden" name="price" value="450">
-                    <input type="submit" value="添加到购物车">
-                </form>
-            </div>
-        </li>
-        <li class="product-item">
-            <img class="product-image" src="path/to/product2_image.jpg" alt="商品5图片">
-            <div class="product-details">
-                <div class="product-name">商品4</div>
-                <div class="price">￥550</div>
-                <form action="add-to-cart" method="post" class="add-to-cart">
-                    <input type="hidden" name="productName" value="商品5">
-                    <input type="hidden" name="price" value="550">
-                    <input type="submit" value="添加到购物车">
-                </form>
-            </div>
-        </li>
-    </ul>
-    <a href="cart.jsp">查看购物车</a>
+        <% } %>
+    </div>
+    <div>
+        <a class="cart-link" href="cart.jsp"><i class="fas fa-shopping-cart"></i> 查看购物车</a>
+    </div>
 </body>
 </html>

@@ -41,7 +41,6 @@ public class RemoveFromCartServlet extends HttpServlet {
                 }
             }
         }
-
         // 重定向到购物车页面，显示更新后的购物车内容
         response.sendRedirect("cart.jsp");
     }

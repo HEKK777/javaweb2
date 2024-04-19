@@ -25,7 +25,6 @@ public class AddToCartServlet extends HttpServlet {
             cart = new HashMap<>();
             session.setAttribute("cart", cart);
         }
-
         // 检查购物车中是否已有该商品，如果有则增加数量，否则添加新商品
         CartItem item = cart.get(productName);
         if (item != null) {
@@ -36,7 +35,6 @@ public class AddToCartServlet extends HttpServlet {
             item = new CartItem(productName, price, 1);
             cart.put(productName, item);
         }
-
         // 重定向到购物车页面
         response.sendRedirect("index.jsp");
     }

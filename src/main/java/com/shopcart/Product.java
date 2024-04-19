@@ -1,14 +1,15 @@
 package com.shopcart;
 
-public class CartItem {
+public class Product {
     private String name;
     private double price;
-    private int quantity;
+    private String img_url;
 
-    public CartItem(String name, double price, int quantity) {
+    public Product(String name,double price,String img_url)
+    {
         this.name = name;
         this.price = price;
-        this.quantity = quantity;
+        this.img_url = img_url;
     }
 
     public String getName() {
@@ -27,15 +28,11 @@ public class CartItem {
         this.price = price;
     }
 
-    public int getQuantity() {
-        return quantity;
+    public String getImg_url() {
+        return img_url;
     }
 
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
-    }
-
-    public double getTotalPrice() {
-        return price * quantity;
+    public void setImg_url(String img_url) {
+        this.img_url = img_url;
     }
 }
